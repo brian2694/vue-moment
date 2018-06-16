@@ -1,13 +1,19 @@
-let moment = require('moment');
+'use strict';
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+var moment = require('moment');
 
 module.exports = {
-  install(Vue, options) {
+  install: function install(Vue, options) {
     Object.defineProperties(Vue.prototype, {
       $moment: {
-        get() {
+        get: function get() {
           return moment;
-        },
-      },
+        }
+      }
     });
 
     if (options && options.moment) {
@@ -16,10 +22,14 @@ module.exports = {
 
     Vue.moment = moment;
 
-    Vue.filter('moment', (...args) => {
+    Vue.filter('moment', function () {
+      for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
+      }
+
       args = Array.prototype.slice.call(args);
-      const input = args.shift();
-      let date;
+      var input = args.shift();
+      var date = void 0;
 
       if (Array.isArray(input) && typeof input[0] === 'string') {
         // If input is array, assume we're being passed a format pattern to parse against.
@@ -45,153 +55,161 @@ module.exports = {
         return input;
       }
 
-      function parse(...args) {
+      function parse() {
+        for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+          args[_key2] = arguments[_key2];
+        }
+
         args = Array.prototype.slice.call(args);
-        const method = args.shift();
+        var method = args.shift();
 
         switch (method) {
-          case 'add': {
-            /*
-            * Mutates the original moment by adding time.
-            * http://momentjs.com/docs/#/manipulating/add/
-            */
+          case 'add':
+            {
+              /*
+              * Mutates the original moment by adding time.
+              * http://momentjs.com/docs/#/manipulating/add/
+              */
 
-            const addends = args.shift()
-              .split(',')
-              .map(Function.prototype.call, String.prototype.trim);
-            const obj = {};
+              var addends = args.shift().split(',').map(Function.prototype.call, String.prototype.trim);
+              var obj = {};
 
-            for (let n = 0; n < addends.length; n++) {
-              const addend = addends[n].split(' ');
-              obj[addend[1]] = addend[0];
-            }
-            date.add(obj);
-            break;
-          }
-
-          case 'subtract': {
-            /*
-            * Mutates the original moment by subtracting time.
-            * http://momentjs.com/docs/#/manipulating/subtract/
-            */
-
-            const subtrahends = args.shift()
-              .split(',')
-              .map(Function.prototype.call, String.prototype.trim);
-            const obj = {};
-
-            for (let n = 0; n < subtrahends.length; n++) {
-              const subtrahend = subtrahends[n].split(' ');
-              obj[subtrahend[1]] = subtrahend[0];
-            }
-            date.subtract(obj);
-            break;
-          }
-
-          case 'from': {
-            /*
-            * Display a moment in relative time, either from now or from a specified date.
-            * http://momentjs.com/docs/#/displaying/fromnow/
-            */
-
-            let from = 'now';
-            let removeSuffix = false;
-
-            if (args[0] === 'now') args.shift();
-            // If valid, assume it is a date we want the output computed against.
-            if (moment(args[0]).isValid()) from = moment(args.shift());
-
-            if (args[0] === true) {
-              args.shift();
-              removeSuffix = true;
+              for (var n = 0; n < addends.length; n++) {
+                var addend = addends[n].split(' ');
+                obj[addend[1]] = addend[0];
+              }
+              date.add(obj);
+              break;
             }
 
-            if (from !== 'now') {
-              date = date.from(from, removeSuffix);
-            } else {
-              date = date.fromNow(removeSuffix);
+          case 'subtract':
+            {
+              /*
+              * Mutates the original moment by subtracting time.
+              * http://momentjs.com/docs/#/manipulating/subtract/
+              */
+
+              var subtrahends = args.shift().split(',').map(Function.prototype.call, String.prototype.trim);
+              var _obj = {};
+
+              for (var _n = 0; _n < subtrahends.length; _n++) {
+                var subtrahend = subtrahends[_n].split(' ');
+                _obj[subtrahend[1]] = subtrahend[0];
+              }
+              date.subtract(_obj);
+              break;
             }
-            break;
-          }
 
-          case 'diff': {
-            /*
-            * Mutates the original moment by doing a difference with another date.
-            * http://momentjs.com/docs/#/displaying/difference/
-            */
+          case 'from':
+            {
+              /*
+              * Display a moment in relative time, either from now or from a specified date.
+              * http://momentjs.com/docs/#/displaying/fromnow/
+              */
 
-            let referenceTime = moment();
-            let units = '';
-            let float = false;
+              var from = 'now';
+              var removeSuffix = false;
 
-            if (moment(args[0]).isValid()) {
+              if (args[0] === 'now') args.shift();
               // If valid, assume it is a date we want the output computed against.
-              referenceTime = moment(args.shift());
-            } else if (args[0] === null || args[0] === 'now') {
-              // If null or 'now', remove argument and proceed with default referenceTime.
-              args.shift();
+              if (moment(args[0]).isValid()) from = moment(args.shift());
+
+              if (args[0] === true) {
+                args.shift();
+                removeSuffix = true;
+              }
+
+              if (from !== 'now') {
+                date = date.from(from, removeSuffix);
+              } else {
+                date = date.fromNow(removeSuffix);
+              }
+              break;
             }
 
-            if (args[0]) units = args.shift();
+          case 'diff':
+            {
+              /*
+              * Mutates the original moment by doing a difference with another date.
+              * http://momentjs.com/docs/#/displaying/difference/
+              */
 
-            if (args[0] === true) float = args.shift();
+              var referenceTime = moment();
+              var units = '';
+              var float = false;
 
-            date = date.diff(referenceTime, units, float);
-            break;
-          }
+              if (moment(args[0]).isValid()) {
+                // If valid, assume it is a date we want the output computed against.
+                referenceTime = moment(args.shift());
+              } else if (args[0] === null || args[0] === 'now') {
+                // If null or 'now', remove argument and proceed with default referenceTime.
+                args.shift();
+              }
 
-          case 'calendar': {
-            /*
-            * Formats a date with different strings depending on how close
-            * to a certain date (today by default) the date is.
-            * http://momentjs.com/docs/#/displaying/calendar-time/
-            */
+              if (args[0]) units = args.shift();
 
-            let referenceTime = moment();
-            let formats = {};
+              if (args[0] === true) float = args.shift();
 
-            if (moment(args[0]).isValid()) {
-              // If valid, assume it is a date we want the output computed against.
-              referenceTime = moment(args.shift());
-            } else if (args[0] === null || args[0] === 'now') {
-              // If null or 'now', remove argument and proceed with default referenceTime.
-              args.shift();
+              date = date.diff(referenceTime, units, float);
+              break;
             }
 
-            if (typeof args[0] === 'object') formats = args.shift();
+          case 'calendar':
+            {
+              /*
+              * Formats a date with different strings depending on how close
+              * to a certain date (today by default) the date is.
+              * http://momentjs.com/docs/#/displaying/calendar-time/
+              */
 
-            date = date.calendar(referenceTime, formats);
-            break;
-          }
+              var _referenceTime = moment();
+              var formats = {};
 
-          case 'utc': {
-            /*
-            * Mutates the original moment by converting to UTC
-            * https://momentjs.com/docs/#/manipulating/utc/
-            */
-            date.utc();
-            break;
-          }
+              if (moment(args[0]).isValid()) {
+                // If valid, assume it is a date we want the output computed against.
+                _referenceTime = moment(args.shift());
+              } else if (args[0] === null || args[0] === 'now') {
+                // If null or 'now', remove argument and proceed with default referenceTime.
+                args.shift();
+              }
 
-          case 'timezone': {
-            /*
-            * Mutates the original moment by converting to a new timezone.
-            * https://momentjs.com/timezone/docs/#/using-timezones/converting-to-zone/
-            */
-            date.tz(args.shift());
-            break;
-          }
+              if (_typeof(args[0]) === 'object') formats = args.shift();
 
-          default: {
-            /*
-            * Formats a date by taking a string of tokens and replacing
-            * them with their corresponding values.
-            * http://momentjs.com/docs/#/displaying/format/
-            */
+              date = date.calendar(_referenceTime, formats);
+              break;
+            }
 
-            const format = method;
-            date = date.format(format);
-          }
+          case 'utc':
+            {
+              /*
+              * Mutates the original moment by converting to UTC
+              * https://momentjs.com/docs/#/manipulating/utc/
+              */
+              date.utc();
+              break;
+            }
+
+          case 'timezone':
+            {
+              /*
+              * Mutates the original moment by converting to a new timezone.
+              * https://momentjs.com/timezone/docs/#/using-timezones/converting-to-zone/
+              */
+              date.tz(args.shift());
+              break;
+            }
+
+          default:
+            {
+              /*
+              * Formats a date by taking a string of tokens and replacing
+              * them with their corresponding values.
+              * http://momentjs.com/docs/#/displaying/format/
+              */
+
+              var format = method;
+              date = date.format(format);
+            }
         }
 
         if (args.length) parse.apply(parse, args);
@@ -202,35 +220,43 @@ module.exports = {
       return date;
     });
 
-    Vue.filter('duration', (...args) => {
+    Vue.filter('duration', function () {
+      for (var _len3 = arguments.length, args = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+        args[_key3] = arguments[_key3];
+      }
+
       /*
       * Basic pass-through filter for leveraging moment.js's ability
       * to manipulate and display durations.
       * https://momentjs.com/docs/#/durations/
       */
       args = Array.prototype.slice.call(args);
-      const input = args.shift();
-      const method = args.shift();
+      var input = args.shift();
+      var method = args.shift();
 
       function createDuration(time) {
+        var _moment;
+
         if (!Array.isArray(time)) time = [time];
-        const result = moment.duration(...time);
+        var result = (_moment = moment).duration.apply(_moment, _toConsumableArray(time));
         if (!result.isValid()) console.warn('Could not build a valid `duration` object from input.');
         return result;
       }
-      let duration = createDuration(input);
+      var duration = createDuration(input);
 
       if (method === 'add' || method === 'subtract') {
         // Generates a duration object and either adds or subtracts it
         // from our original duration.
-        const durationChange = createDuration(args);
+        var durationChange = createDuration(args);
         duration[method](durationChange);
       } else if (duration && duration[method]) {
+        var _duration;
+
         // This gives a full proxy to moment.duration functions.
-        duration = duration[method](...args);
+        duration = (_duration = duration)[method].apply(_duration, _toConsumableArray(args));
       }
 
       return duration;
     });
-  },
+  }
 };
